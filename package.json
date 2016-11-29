@@ -1,6 +1,6 @@
 {
   "name": "wdio-sync",
-  "version": "0.6.7",
+  "version": "0.6.9-alpha",
   "description": "A WebdriverIO plugin. Helper module to run WebdriverIO commands synchronously.",
   "main": "build/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/webdriverio/wdio-sync.git"
+    "url": "git+https://github.com/shivs25/wdio-sync.git"
   },
   "keywords": [
     "webdriverio",
@@ -22,9 +22,9 @@
   "author": "Christian Bromann <christian@saucelabs.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/webdriverio/wdio-sync/issues"
+    "url": "https://github.com/shivs25/wdio-sync/issues"
   },
-  "homepage": "https://github.com/webdriverio/wdio-sync#readme",
+  "homepage": "https://github.com/shivs25/wdio-sync/#readme",
   "dependencies": {
     "fibers": "^1.0.9",
     "object.assign": "^4.0.3"
