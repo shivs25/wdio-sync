@@ -446,6 +446,7 @@ let executeSync = function (fn, repeatTest = 0, args = []) {
 
     return new Promise((resolve, reject) => {
         try {
+            console.log("YESSSS");
             const res = fn.apply(this, args)
             resolve(res)
         } catch (e) {
@@ -482,8 +483,9 @@ let executeAsync = function (fn, repeatTest = 0, args = []) {
     commandIsRunning = false
 
     try {
+        console.log("NOOO");
         result = fn.apply(this, args);
-		console.log("YESSSS");
+		
     } catch (e) {
         error = e
     } finally {

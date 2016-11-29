@@ -753,6 +753,7 @@ var _executeSync2 = function executeSync(fn) {
 
     return new Promise(function (resolve, reject) {
         try {
+            console.log("YESSSS");
             var res = fn.apply(_this4, args);
             resolve(res);
         } catch (e) {
@@ -809,8 +810,8 @@ var _executeAsync2 = function executeAsync(fn) {
     commandIsRunning = false;
 
     try {
+        console.log("NOOO");
         result = fn.apply(this, args);
-        console.log("YESSSS");
     } catch (e) {
         error = e;
     } finally {
