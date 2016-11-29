@@ -482,7 +482,8 @@ let executeAsync = function (fn, repeatTest = 0, args = []) {
     commandIsRunning = false
 
     try {
-        result = fn.apply(this, args)
+        result = fn.apply(this, args);
+		console.log("YESSSS");
     } catch (e) {
         error = e
     } finally {
