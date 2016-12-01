@@ -246,7 +246,6 @@ var executeHooksWithArgs = function executeHooksWithArgs(hooks, args) {
     if (!Array.isArray(args)) {
         args = [args];
     }
-
     hooks = hooks.map(function (hook) {
         return new Promise(function (resolve) {
             var _commandIsRunning = commandIsRunning;
@@ -753,10 +752,10 @@ var _executeSync2 = function executeSync(fn) {
 
     return new Promise(function (resolve, reject) {
         try {
-            console.log("YESSSS");
             var res = fn.apply(_this4, args);
             resolve(res);
         } catch (e) {
+            console.log('repeat test ' + repeatTest);
             if (repeatTest) {
                 return resolve(_executeSync2(fn, --repeatTest, args));
             }
@@ -810,7 +809,6 @@ var _executeAsync2 = function executeAsync(fn) {
     commandIsRunning = false;
 
     try {
-        console.log("NOOO");
         result = fn.apply(this, args);
     } catch (e) {
         error = e;
@@ -945,7 +943,6 @@ var runSpec = function runSpec(specTitle, specFn, origFn) {
             return _executeAsync2.call(this, specFn, repeatTest);
         });
     }
-
     return origFn(specTitle, function () {
         var _this6 = this;
 
@@ -993,7 +990,6 @@ var wrapTestFunction = function wrapTestFunction(fnName, origFn, testInterfaceFn
         var retryCnt = typeof specArguments[specArguments.length - 1] === 'number' ? specArguments.pop() : 0;
         var specFn = typeof specArguments[0] === 'function' ? specArguments.shift() : typeof specArguments[1] === 'function' ? specArguments.pop() : undefined;
         var specTitle = specArguments[0];
-
         if (testInterfaceFnNames.indexOf(fnName) > -1) {
             if (specFn) return runSpec(specTitle, specFn, origFn, retryCnt);
 
@@ -1002,7 +998,6 @@ var wrapTestFunction = function wrapTestFunction(fnName, origFn, testInterfaceFn
              */
             return origFn(specTitle);
         }
-
         return runHook(specFn, origFn, before, after, retryCnt);
     };
 };

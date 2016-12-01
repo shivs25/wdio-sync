@@ -77,7 +77,6 @@ let executeHooksWithArgs = (hooks = [], args) => {
     if (!Array.isArray(args)) {
         args = [args]
     }
-
     hooks = hooks.map((hook) => new Promise((resolve) => {
         let _commandIsRunning = commandIsRunning
         let result
@@ -446,10 +445,10 @@ let executeSync = function (fn, repeatTest = 0, args = []) {
 
     return new Promise((resolve, reject) => {
         try {
-            console.log("YESSSS");
             const res = fn.apply(this, args)
             resolve(res)
         } catch (e) {
+            console.log('repeat test ' + repeatTest)
             if (repeatTest) {
                 return resolve(executeSync(fn, --repeatTest, args))
             }
@@ -483,9 +482,7 @@ let executeAsync = function (fn, repeatTest = 0, args = []) {
     commandIsRunning = false
 
     try {
-        console.log("NOOO");
-        result = fn.apply(this, args);
-		
+        result = fn.apply(this, args)
     } catch (e) {
         error = e
     } finally {
@@ -575,7 +572,6 @@ let runSpec = function (specTitle, specFn, origFn, repeatTest = 0) {
             return executeAsync.call(this, specFn, repeatTest)
         })
     }
-
     return origFn(specTitle, function () {
         return new Promise((resolve, reject) =>
             Fiber(() => executeSync.call(this, specFn, repeatTest).then(() => resolve(), reject)).run()
@@ -600,7 +596,6 @@ let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, a
         let specFn = typeof specArguments[0] === 'function' ? specArguments.shift()
             : (typeof specArguments[1] === 'function' ? specArguments.pop() : undefined)
         let specTitle = specArguments[0]
-
         if (testInterfaceFnNames.indexOf(fnName) > -1) {
             if (specFn) return runSpec(specTitle, specFn, origFn, retryCnt)
 
@@ -609,7 +604,6 @@ let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, a
              */
             return origFn(specTitle)
         }
-
         return runHook(specFn, origFn, before, after, retryCnt)
     }
 }
