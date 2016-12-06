@@ -1,6 +1,6 @@
 {
   "name": "wdio-sync",
-  "version": "0.6.11-alpha",
+  "version": "0.6.12",
   "description": "A WebdriverIO plugin. Helper module to run WebdriverIO commands synchronously.",
   "main": "build/index.js",
   "scripts": {
@@ -56,10 +56,11 @@
     "George Crawford <george.crawford@ft.com>",
     "Christian Bromann <github@christian-bromann.com>",
     "christian-bromann <mail@christian-bromann.com>",
+    "Billy Shivers <billy@sitesusa.com>",
     "Kurt Harriger <kharriger@rallydev.com>",
-    "just-boris <just-boris@hotmail.com>",
+    "Andy Edwards <jedwards@fastmail.com>",
     "Kentaro Kaji <kentaro.kaji@nytimes.com>",
     "Thomas Grainger <tagrain@gmail.com>",
-    "Andy Edwards <jedwards@fastmail.com>"
+    "just-boris <just-boris@hotmail.com>"
   ]
 }
