@@ -436,7 +436,7 @@ let wrapCommands = function (instance, beforeCommand, afterCommand) {
  * @param  {Number}   repeatTest number of retries
  * @return {Promise}             that gets resolved once test/hook is done or was retried enough
  */
-let executeSync = function (fn, repeatTest = 0, args = []) {
+let executeSync = function (fn, beforeRun, afterRun, runErrored, repeatTest = 0, args = []) {
     /**
      * if a new hook gets executed we can assume that all commands should have finised
      * with exception of timeouts where `commandIsRunning` will never be reset but here
@@ -445,14 +445,27 @@ let executeSync = function (fn, repeatTest = 0, args = []) {
 
     return new Promise((resolve, reject) => {
         try {
+            executeHooksWithArgs(beforeRun)
             const res = fn.apply(this, args)
-            resolve(res)
-        } catch (e) {
-            console.log('repeat test ' + repeatTest)
-            if (repeatTest) {
-                return resolve(executeSync(fn, --repeatTest, args))
-            }
+            executeHooksWithArgs(afterRun).then((hookRes) => {
+                hookRes = hookRes[0][0] // For some reason, this is a nested array
 
+                if (hookRes.expectationFailedOnRun) {
+                    if (repeatTest) {
+                        return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
+                    } else {
+                        resolve(res)
+                    }
+                } else {
+                    resolve(res)
+                }
+            })
+        } catch (e) {
+            if (repeatTest) {
+                executeHooksWithArgs(afterRun)
+                return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
+            }
+            executeHooksWithArgs(runErrored)
             /**
              * no need to modify stack if no stack available
              */
@@ -545,7 +558,7 @@ let runHook = function (hookFn, origFn, before, after, repeatTest = 0) {
             }
 
             return new Promise((resolve, reject) =>
-                Fiber(() => executeSync.call(this, hookFn, repeatTest).then(() => resolve(), reject)).run()
+                Fiber(() => executeSync.call(this, hookFn, () => {}, () => {}, () => {}, repeatTest).then(() => resolve(), reject)).run()
             )
         }).then(() => {
             return executeHooksWithArgs(after).catch((e) => {
@@ -563,8 +576,8 @@ let runHook = function (hookFn, origFn, before, after, repeatTest = 0) {
  * @param  {Number}   repeatTest  number of retries if test fails
  * @return {Function}             wrapped test function
  */
-let runSpec = function (specTitle, specFn, origFn, repeatTest = 0) {
-    /**
+let runSpec = function (specTitle, specFn, origFn, beforeRun, afterRun, runErrored, repeatTest = 0) {
+     /**
      * user wants handle async command using promises, no need to wrap in fiber context
      */
     if (isAsync() || specFn.name === 'async') {
@@ -574,7 +587,7 @@ let runSpec = function (specTitle, specFn, origFn, repeatTest = 0) {
     }
     return origFn(specTitle, function () {
         return new Promise((resolve, reject) =>
-            Fiber(() => executeSync.call(this, specFn, repeatTest).then(() => resolve(), reject)).run()
+            Fiber(() => executeSync.call(this, specFn, beforeRun, afterRun, runErrored, repeatTest).then(() => resolve(), reject)).run()
         )
     })
 }
@@ -585,7 +598,7 @@ let runSpec = function (specTitle, specFn, origFn, repeatTest = 0) {
  * @param  {string[]} testInterfaceFnNames actual test functions for that framework
  * @return {Function}                      wrapped test/hook function
  */
-let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, after) {
+let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, after, beforeRun, afterRun, runErrored) {
     return function (...specArguments) {
         /**
          * Variadic arguments:
@@ -597,7 +610,7 @@ let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, a
             : (typeof specArguments[1] === 'function' ? specArguments.pop() : undefined)
         let specTitle = specArguments[0]
         if (testInterfaceFnNames.indexOf(fnName) > -1) {
-            if (specFn) return runSpec(specTitle, specFn, origFn, retryCnt)
+            if (specFn) return runSpec(specTitle, specFn, origFn, beforeRun, afterRun, runErrored, retryCnt)
 
             /**
              * if specFn is undefined we are dealing with a pending function
@@ -615,9 +628,9 @@ let wrapTestFunction = function (fnName, origFn, testInterfaceFnNames, before, a
  * @param  {[type]} after                after hook hook
  * @param  {[type]} fnName               test interface command to wrap
  */
-let runInFiberContext = function (testInterfaceFnNames, before, after, fnName) {
+let runInFiberContext = function (testInterfaceFnNames, before, after, beforeRun, afterRun, runErrored, fnName) {
     let origFn = global[fnName]
-    global[fnName] = wrapTestFunction(fnName, origFn, testInterfaceFnNames, before, after)
+    global[fnName] = wrapTestFunction(fnName, origFn, testInterfaceFnNames, before, after, beforeRun, afterRun, runErrored)
 
     /**
      * support it.skip for the Mocha framework
@@ -631,7 +644,7 @@ let runInFiberContext = function (testInterfaceFnNames, before, after, fnName) {
      */
     if (typeof origFn.only === 'function') {
         let origOnlyFn = origFn.only
-        global[fnName].only = wrapTestFunction(fnName + '.only', origOnlyFn, testInterfaceFnNames, before, after)
+        global[fnName].only = wrapTestFunction(fnName + '.only', origOnlyFn, testInterfaceFnNames, before, after, beforeRun, afterRun, runErrored)
     }
 }
 
