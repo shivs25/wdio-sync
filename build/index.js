@@ -756,11 +756,14 @@ var _executeSync2 = function executeSync(fn, beforeRun, afterRun, runErrored) {
                 executeHooksWithArgs(beforeRun);
                 var res = fn.apply(_this4, args);
                 executeHooksWithArgs(afterRun).then(function (hookRes) {
-                    hookRes = hookRes[0][0]; // For some reason, this is a nested array
-
-                    if (hookRes.expectationFailedOnRun) {
-                        if (repeatTest) {
-                            return resolve(_executeSync2(fn, beforeRun, afterRun, runErrored, --repeatTest, args));
+                    if (hookRes && hookRes.length > 0 && hookRes[0]) {
+                        hookRes = hookRes[0][0]; // For some reason, this is a nested array
+                        if (hookRes.expectationFailedOnRun) {
+                            if (repeatTest) {
+                                return resolve(_executeSync2(fn, beforeRun, afterRun, runErrored, --repeatTest, args));
+                            } else {
+                                resolve(res);
+                            }
                         } else {
                             resolve(res);
                         }

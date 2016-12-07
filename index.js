@@ -448,11 +448,14 @@ let executeSync = function (fn, beforeRun, afterRun, runErrored, repeatTest = 0,
             executeHooksWithArgs(beforeRun)
             const res = fn.apply(this, args)
             executeHooksWithArgs(afterRun).then((hookRes) => {
-                hookRes = hookRes[0][0] // For some reason, this is a nested array
-
-                if (hookRes.expectationFailedOnRun) {
-                    if (repeatTest) {
-                        return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
+                if (hookRes && hookRes.length > 0 && hookRes[0]) {
+                    hookRes = hookRes[0][0] // For some reason, this is a nested array
+                    if (hookRes.expectationFailedOnRun) {
+                        if (repeatTest) {
+                            return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
+                        } else {
+                            resolve(res)
+                        }
                     } else {
                         resolve(res)
                     }
