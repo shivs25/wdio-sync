@@ -760,6 +760,7 @@ var _executeSync2 = function executeSync(fn, beforeRun, afterRun, runErrored) {
                         hookRes = hookRes[0][0]; // For some reason, this is a nested array
                         if (hookRes.expectationFailedOnRun) {
                             if (repeatTest) {
+                                console.log('Repeating test on expectation failed ' + repeatTest);
                                 return resolve(_executeSync2(fn, beforeRun, afterRun, runErrored, --repeatTest, args));
                             } else {
                                 resolve(res);
@@ -774,6 +775,7 @@ var _executeSync2 = function executeSync(fn, beforeRun, afterRun, runErrored) {
             })();
         } catch (e) {
             if (repeatTest) {
+                console.log('Repeating test on error ' + repeatTest);
                 executeHooksWithArgs(afterRun);
                 return resolve(_executeSync2(fn, beforeRun, afterRun, runErrored, --repeatTest, args));
             }

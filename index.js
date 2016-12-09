@@ -452,6 +452,7 @@ let executeSync = function (fn, beforeRun, afterRun, runErrored, repeatTest = 0,
                     hookRes = hookRes[0][0] // For some reason, this is a nested array
                     if (hookRes.expectationFailedOnRun) {
                         if (repeatTest) {
+                            console.log('Repeating test on expectation failed ' + repeatTest)
                             return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
                         } else {
                             resolve(res)
@@ -465,6 +466,7 @@ let executeSync = function (fn, beforeRun, afterRun, runErrored, repeatTest = 0,
             })
         } catch (e) {
             if (repeatTest) {
+                console.log('Repeating test on error ' + repeatTest)
                 executeHooksWithArgs(afterRun)
                 return resolve(executeSync(fn, beforeRun, afterRun, runErrored, --repeatTest, args))
             }
